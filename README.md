@@ -2,9 +2,9 @@
 WIP
 A pathfinder that goes from A to B:
 - only move in cardinal directions
-- ascend 1 block high
-- descend any number of blocks
+- ascend only 1 block high
+- descend any number of blocks (configurable)
 - avoid certain blocks
 
-Supports goals, etc
+Supports goals, etc. Designed to be QUICK
 ```
