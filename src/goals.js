@@ -11,7 +11,7 @@ const Register = (parent, setters) => {
 }
 
 module.exports.inject = function inject(bot) {
-    function Radius3D(position) {
+    function Radius3D(destination) {
         let radius = 5
         let timeout = 50
         let blocks  = 100
@@ -24,10 +24,17 @@ module.exports.inject = function inject(bot) {
             })
         }
 
-        this.continue = () => {}
+        this.heuristic = (currentPos, nextPos) => {
+            return currentPos.distanceTo(nextPos)
+        }
 
-        this.complete = (current, destination) => {
-            return current.distanceTo(destination) <= radius
+        this.continue = (status) => {
+            return status.blocks < blocks &&
+                   status.timeout < timeout
+        }
+
+        this.complete = (position) => {
+            return position.distanceTo(destination) <= radius
         }
     }
 }
