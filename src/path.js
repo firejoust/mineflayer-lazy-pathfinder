@@ -155,7 +155,7 @@ module.exports.inject = function inject(bot, Set) {
 
                 // check if the player can descend
                 if (emptyBlock(y0)) {
-                    const lastPos = nextPos
+                    const lastPos = nextPos.clone()
                     const descendPos = nextPos.offset(0, -1, 0)
 
                     for (let i = 1; i <= depth; i++) {
