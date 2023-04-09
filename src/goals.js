@@ -1,26 +1,24 @@
-const Set = (instance, callback) => {
-    return (...args) => {
-        callback(...args)
-        return instance
+module.exports.inject = function inject(bot, Set) {
+    const Register = (parent, setters) => {
+        for (let key in setters) {
+            parent[key] = setters[key]
+        }
     }
-}
-const Register = (parent, setters) => {
-    for (let key in setters) {
-        parent[key] = setters[key]
-    }
-}
 
-module.exports.inject = function inject(bot) {
     function Radius3D(destination) {
         let radius = 5
         let timeout = 50
         let blocks  = 100
 
+        this.radius = Set(this, _ => radius = _)
+        this.timeout = Set(this, _ => timeout = _)
+        this.blocks = Set(this, _ => blocks = _)
+
         this.register = (parent) => {
             Register(parent, {
-                radius: Set(this, _ => radius = _),
-                timeout: Set(this, _ => timeout = _),
-                blocks: Set(this, _ => blocks = _)
+                radius: this.radius,
+                timeout: this.timeout,
+                blocks: this.blocks,
             })
         }
 
