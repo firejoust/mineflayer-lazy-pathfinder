@@ -118,10 +118,10 @@ module.exports.inject = function inject(bot, Set) {
 
                 // check if the player can descend
                 if (emptyBlock(y0)) {
-                    let lastPos = nextPos
+                    const lastPos = nextPos
+                    const descendPos = nextPos.offset(0, -1, 0)
 
                     for (let i = 1; i <= depth; i++) {
-                        const descendPos = nextPos.offset(0, -i, 0)
                         const yi = bot.blockAt(descendPos)
 
                         if (unsafeBlock(yi)) {
@@ -133,7 +133,8 @@ module.exports.inject = function inject(bot, Set) {
                             return true
                         }
 
-                        lastPos = descendPos
+                        lastPos.translate(0, -1, 0)
+                        descendPos.translate(0, -1, 0)
                     }
                 } else
 
