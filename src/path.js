@@ -59,7 +59,7 @@ module.exports.inject = function inject(bot, Set) {
         goal.register(this)
 
         let { avoid, depth } = Defaults
-        this.avoid = Set(this, _ => avoid = _)
+        this.avoid = Set(this, ..._ => avoid = new Set(_))
         this.depth = Set(this, _ => depth = _)
         
         this.execute = function execute() {
@@ -105,6 +105,18 @@ module.exports.inject = function inject(bot, Set) {
             }
 
             clearInterval(interval)
+            
+            // return the final path taken
+            {
+                const path = new Array()
+
+                while (currentNode.parent) {
+                    path.push(currentNode.position)
+                    currentNode = currentNode.parent
+                }
+
+                return path.reverse()
+            }
         }
 
 
