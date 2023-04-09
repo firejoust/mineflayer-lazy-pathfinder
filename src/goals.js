@@ -1,4 +1,5 @@
 module.exports.inject = function inject(bot, Set) {
+    
     const Register = (parent, setters) => {
         for (let key in setters) {
             parent[key] = setters[key]
