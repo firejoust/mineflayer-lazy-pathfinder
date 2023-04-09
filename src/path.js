@@ -15,18 +15,43 @@ function Node(parent, heuristic, position) {
     this.heuristic = heuristic
     this.position = position
     this.cost = parent.cost + 1
+    this.total = this.heuristic + this.cost
 }
 
 function getHash(position) {
     return (position.x, position.y, position.z)
 }
 
-function insertNode(node, nodeList) {
+function getBestIndex(nodeList, node) {
+    let low = 0
+    let high = nodeList.length - 1
+    let mid
 
+    while (low <= high) {
+        mid = Math.floor((low + high) / 2)
+        if (nodeList[mid].total < node.total) {
+            low = mid + 1
+        } else
+        
+        if (nodeList[mid].total > node.total) {
+            high = mid - 1
+        } else
+        
+        return mid
+    }
+
+    return low
 }
 
-function getBestIndex(nodeList) {
-
+function insertNode(node, nodeList) {
+    const length = nodeList.length
+    for (let index = 0; index < length; index++) {
+        if (node.total < nodeList[index].total) {
+            nodeList.splice(index, 0, node)
+            return
+        }
+    }
+    nodeList.push(node) // no elements in array
 }
 
 module.exports.inject = function inject(bot, Set) {
