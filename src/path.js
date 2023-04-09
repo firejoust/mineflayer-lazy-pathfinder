@@ -105,6 +105,16 @@ module.exports.inject = function inject(bot, Set) {
             }
 
             clearInterval(interval)
+
+            // if we haven't reached the goal, get the node closest to the goal
+            {
+                if (!goal.complete(currentPos)) {
+                    currentNode = Best.reduce((a, b) => Math.min(
+                        goal.heuristic(a.position),
+                        goal.heuristic(b.position)
+                    ))
+                }
+            }
             
             // return the final path taken
             {
