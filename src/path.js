@@ -7,7 +7,17 @@ const Adjacent = [
 
 const Defaults = {
     avoid: new Set(['lava', 'water']),
-    depth: 4
+    depth: 4,
+    blocks: 10000,
+    timeout: 10
+}
+
+
+const Setter = (instance, callback) => {
+    return (...args) => {
+        callback(...args)
+        return instance
+    }
 }
 
 function StartNode(heuristic, position) {
@@ -43,13 +53,13 @@ function insertNode(node, nodeList) {
     nodeList.push(node)
 }
 
-module.exports.inject = function inject(bot, Setter) {
+module.exports.inject = function inject(bot) {
     return function Path(goal) {
-        goal.register(this)
-
-        let { avoid, depth } = Defaults
+        let { avoid, depth, blocks, timeout } = Defaults
         this.avoid = Setter(this, (..._) => avoid = new Set(_))
         this.depth = Setter(this, _ => depth = _)
+        this.blocks = Setter(this, _ => blocks = _)
+        this.timeout = Setter(this, _ => timeout = _)
         
         this.execute = function execute() {
             const Nodes = new Set()
@@ -59,6 +69,11 @@ module.exports.inject = function inject(bot, Setter) {
             const status = {
                 blocks: 0,
                 timeout: 0
+            }
+
+            const keepalive = () => {
+                return status.blocks < blocks &&
+                       status.timeout < timeout
             }
 
             const interval = setInterval(() => status.timeout++, 1)
@@ -77,7 +92,7 @@ module.exports.inject = function inject(bot, Setter) {
                 currentPos  = position
             }
 
-            while (goal.continue(status) && !goal.complete(currentPos)) {
+            while (keepalive() && !goal.complete(currentPos)) {
                 for (let offset of Adjacent) {
                     const nextPos = currentPos.offset(offset[0], 0, offset[1])
                     // check that the existing positon hasn't been added
