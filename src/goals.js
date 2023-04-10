@@ -1,37 +1,10 @@
-module.exports.inject = function inject(Setter) {
-    
-    const Register = (parent, setters) => {
-        for (let key in setters) {
-            parent[key] = setters[key]
-        }
-    }
-
-    function Radius3D(destination) {
+module.exports = function Goals() {
+    function Radius3D(destination, radius) {
         destination = destination.floored()
-
-        let radius = 0
-        let timeout = 10
-        let blocks  = 10000
-
-        this.radius = Setter(this, _ => radius = _)
-        this.timeout = Setter(this, _ => timeout = _)
-        this.blocks = Setter(this, _ => blocks = _)
-
-        this.register = (parent) => {
-            Register(parent, {
-                radius: Setter(parent, this.radius),
-                timeout: Setter(parent, this.timeout),
-                blocks: Setter(parent, this.blocks),
-            })
-        }
+        radius = radius || 0
 
         this.heuristic = (position) => {
             return position.distanceTo(destination)
-        }
-
-        this.continue = (status) => {
-            return status.blocks < blocks &&
-                   status.timeout < timeout
         }
 
         this.complete = (position) => {
@@ -39,35 +12,15 @@ module.exports.inject = function inject(Setter) {
         }
     }
 
-    function Radius2D(x, z) {
+    function Radius2D(x, z, radius) {
         x = Math.floor(x)
         z = Math.floor(z)
-        
-        let radius = 0
-        let timeout = 10
-        let blocks = 10000
-
-        this.radius = Setter(this, _ => radius = _)
-        this.timeout = Setter(this, _ => timeout = _)
-        this.blocks = Setter(this, _ => blocks = _)
-
-        this.register = (parent) => {
-            Register(parent, {
-                radius: this.radius,
-                timeout: this.timeout,
-                blocks: this.blocks,
-            })
-        }
+        radius = radius || 0
 
         this.heuristic = (position) => {
             const x0 = x - position.x
             const z0 = z - position.z
             return Math.sqrt(x0 ** 2 + z0 ** 2)
-        }
-
-        this.continue = (status) => {
-            return status.blocks < blocks &&
-                   status.timeout < timeout
         }
 
         this.complete = (position) => {
@@ -77,33 +30,14 @@ module.exports.inject = function inject(Setter) {
         }
     }
 
-    function Direction(bot) {
+    function Direction(bot, distance) {
         const currentPos = bot.entity.position.floored()
-        let render = 500
-        let timeout = 10
-        let blocks = 10000
-
-        this.render = Setter(this, _ => render = _)
-        this.timeout = Setter(this, _ => timeout = _)
-        this.blocks = Setter(this, _ => blocks = _)
-
-        this.register = (parent) => {
-            Register(parent, {
-                render: this.render,
-                timeout: this.timeout,
-                blocks: this.blocks,
-            })
-        }
+        distance = distance || 500
 
         this.heuristic = (position) => {
-            const x0 = -Math.sin(bot.entity.yaw)   * render - (position.x - currentPos.x)
-            const z0 = -Math.cos(bot.entity.yaw)   * render - (position.z - currentPos.z)
+            const x0 = -Math.sin(bot.entity.yaw) * distance - (position.x - currentPos.x)
+            const z0 = -Math.cos(bot.entity.yaw) * distance - (position.z - currentPos.z)
             return Math.sqrt(x0 ** 2 + z0 ** 2)
-        }
-
-        this.continue = (status) => {
-            return status.blocks < blocks &&
-                   status.timeout < timeout
         }
 
         this.complete = (_) => {
