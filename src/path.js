@@ -53,8 +53,16 @@ function insertNode(node, nodeList) {
     nodeList.push(node)
 }
 
+function hazardWeight(hazards, position) {
+    let multiplier = 1
+    hazards.forEach(hazard => {
+        multiplier *= 1 + hazard.heuristic(position)
+    })
+    return multiplier
+}
+
 module.exports.inject = function inject(bot) {
-    return function Path(goal) {
+    return function Path(goal, ...hazards) {
         let { avoid, depth, blocks, timeout } = Defaults
         this.avoid = Setter(this, (..._) => avoid = new Set(_))
         this.depth = Setter(this, _ => depth = _)
@@ -84,7 +92,7 @@ module.exports.inject = function inject(bot) {
             {
                 const position = bot.entity.position.floored()
                 const hash = getHash(position)
-                const heuristic = goal.heuristic(position)
+                const heuristic = goal.heuristic(position) * hazardWeight(hazards, position)
                 const node = new StartNode(heuristic, position)
                 Nodes.add(hash)
 
@@ -106,7 +114,7 @@ module.exports.inject = function inject(bot) {
                         if (Nodes.has(hash)) {
                             continue
                         } else {
-                            const heuristic = goal.heuristic(nextPos)
+                            const heuristic = goal.heuristic(nextPos) * hazardWeight(hazards, nextPos)
                             const node = new Node(currentNode, heuristic, nextPos)
                             Nodes.add(hash)
                             insertNode(node, Best)
