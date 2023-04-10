@@ -12,7 +12,10 @@ module.exports.plugin = function inject(bot) {
     bot.pathfinder = new Plugin(bot)
 }
 
+module.exports.goals = (
+    Goals.inject(Setter)
+)
+
 function Plugin(bot) {
     this.Path = Path.inject(bot, Setter)
-    this.goals = Goals.inject(bot, Setter)
 }
