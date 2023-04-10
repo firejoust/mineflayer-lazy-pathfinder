@@ -81,7 +81,7 @@ module.exports.inject = function inject(Setter) {
         const currentPos = bot.entity.position.floored()
         let render = 500
         let timeout = 10
-        let blocks = 1000
+        let blocks = 10000
 
         this.render = Setter(this, _ => render = _)
         this.timeout = Setter(this, _ => timeout = _)
