@@ -19,7 +19,7 @@ bot.once("spawn", function init() {
     bot.chat("No player found")
   } else {
     const goal = new Radius3D(entity.position, 3)
-      
+    // all of the setters are optional
     const path = new bot.pathfinder.Path(goal)
       .blocks(5000)
       .timeout(10)
