@@ -26,7 +26,7 @@ const goal3 = new Direction(bot, distance)
 const hazard1 = new bot.pathfinder.hazards.Block(weight?, avoid?, offset?)
   .weight(number) // multiplier for a node's heuristic (1 + weight)
   .offset(Vec3)   // where to check relative to the node (default: block under node)
-   .avoid(...string[]) // names of blocks to avoid
+  .avoid(...string[]) // names of blocks to avoid
   
 const hazard2 = new bot.pathfinder.hazards.Entity(weight?, radius?, entities?)
   .weight(number) // multiplier for a node's heuristic (1 + weight)
