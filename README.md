@@ -2,39 +2,11 @@
 ```sh
 npm install mineflayer-pathfinder-lite
 ```
-#### Usage
-```js
-const { Radius3D, Radius2D, Direction } = require("mineflayer-pathfinder-lite").goals
-const pathfinder = require("mineflayer-pathfinder-lite").plugin
-const mineflayer = require("mineflayer")
-
-const bot = mineflayer.createBot()
-
-bot.loadPlugin(pathfinder)
-
-bot.once("spawn", function init() {
-  const entity = bot.nearestEntity(entity => entity.type === "player")
-  
-  if (entity === null) {
-    bot.chat("No player found")
-  } else {
-    const goal = new Radius3D(entity.position, 3)
-    // all of the setters are optional
-    const path = new bot.pathfinder.Path(goal)
-      .blocks(5000)
-      .timeout(10)
-      .avoid('lava', 'water')
-      .depth(4)
-      .execute()
-      
-    console.log(path)
-  }
-})
-```
 #### API
 ##### Types
-```ts
-type Vec3 = { x, y, z } // https://github.com/PrismarineJS/node-vec3
+```js
+class Vec3 = { x, y, z } // https://github.com/PrismarineJS/node-vec3
+class PrismarineEntity;  // https://github.com/PrismarineJS/prismarine-entity
 ```
 ##### Goals
 ```js
@@ -77,4 +49,33 @@ const path = new bot.pathfinder.Path(goal, ...hazards?)
   .execute()
   
 // path will return as Vec3[] array
+```
+#### Example
+```js
+const { Radius3D, Radius2D, Direction } = require("mineflayer-pathfinder-lite").goals
+const pathfinder = require("mineflayer-pathfinder-lite").plugin
+const mineflayer = require("mineflayer")
+
+const bot = mineflayer.createBot()
+
+bot.loadPlugin(pathfinder)
+
+bot.once("spawn", function init() {
+  const entity = bot.nearestEntity(entity => entity.type === "player")
+  
+  if (entity === null) {
+    bot.chat("No player found")
+  } else {
+    const goal = new Radius3D(entity.position, 3)
+    // all of the setters are optional
+    const path = new bot.pathfinder.Path(goal)
+      .blocks(5000)
+      .timeout(10)
+      .avoid('lava', 'water')
+      .depth(4)
+      .execute()
+      
+    console.log(path)
+  }
+})
 ```
