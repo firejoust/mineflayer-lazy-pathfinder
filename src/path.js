@@ -6,12 +6,11 @@ const Adjacent = [
 ]
 
 const Defaults = {
-    avoid: new Set(['lava', 'water']),
+    avoid: { 'lava': true, 'water': true },
     depth: 4,
     blocks: 10000,
     timeout: 10
 }
-
 
 const Setter = (instance, callback) => {
     return (...args) => {
@@ -64,7 +63,7 @@ function hazardWeight(hazards, position) {
 module.exports.inject = function inject(bot) {
     return function Path(goal, ...hazards) {
         let { avoid, depth, blocks, timeout } = Defaults
-        this.avoid = Setter(this, (..._) => avoid = new Set(_))
+        this.avoid = Setter(this, _ => avoid = _)
         this.depth = Setter(this, _ => depth = _)
         this.blocks = Setter(this, _ => blocks = _)
         this.timeout = Setter(this, _ => timeout = _)
@@ -183,7 +182,7 @@ module.exports.inject = function inject(bot) {
             if (block === null) {
                 return false
             } else {
-                return avoid.has(block.name)
+                return Boolean(avoid[block.name])
             }
         }
     

@@ -26,26 +26,26 @@ const goal3 = new Direction(bot, distance)
 const hazard1 = new bot.pathfinder.hazards.Block(weight?, avoid?, offset?)
   .weight(number) // multiplier for a node's heuristic (1 + weight)
   .offset(Vec3)   // where to check relative to the node (default: block under node)
-  .avoid(...string[]) // names of blocks to avoid
+  .avoid(object)  // string -> boolean key/value object containing names of blocks to avoid
   
 const hazard2 = new bot.pathfinder.hazards.Entity(weight?, radius?, entities?)
   .weight(number) // multiplier for a node's heuristic (1 + weight)
   .radius(number) // distance from an entity which weight will be applied
-  .entities(...PrismarineEntity) // entities to avoid
+  .entities(PrismarineEntity[]) // entities to avoid
   
-const hazard3 = new bot.pathfinder.hazards.Location(weight?, radius?, coordinates?)
+const hazard3 = new bot.pathfinder.hazards.Position(weight?, radius?, coordinates?)
   .weight(number) // multiplier for a node's heuristic (1 + weight)
   .radius(number) // distance from a coordinate which weight will be applied
-  .coordinates(...Vec3[]) // coordinates to avoid
+  .coordinates(Vec3[]) // coordinates to avoid
 ```
 ##### Path
 ```js
 // the closest path from A to B
 const path = new bot.pathfinder.Path(goal, ...hazards?)
-  .avoid(...string[]) // the names of blocks to avoid (default: 'water', 'lava')
-  .depth(number)      // how deep in blocks the pathfinder can descend nodes (default: 4 blocks)
-  .blocks(number)     // limit of how many blocks to check for adjacent nodes (destination not reached)
-  .timeout(number)    // limit of how long in ms before returning the path (destination not reached)
+  .avoid(object)   // string -> boolean key/value object containing names of blocks to avoid
+  .depth(number)   // how deep in blocks the pathfinder can descend nodes (default: 4 blocks)
+  .blocks(number)  // limit of how many blocks to check for adjacent nodes (destination not reached)
+  .timeout(number) // limit of how long in ms before returning the path (destination not reached)
   .execute()
   
 // path will return as Vec3[] array
@@ -71,7 +71,7 @@ bot.once("spawn", function init() {
     const path = new bot.pathfinder.Path(goal)
       .blocks(5000)
       .timeout(10)
-      .avoid('lava', 'water')
+      .avoid({ lava: true, water: true })
       .depth(4)
       .execute()
       

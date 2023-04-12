@@ -10,24 +10,24 @@ const Setter = (instance, callback) => {
 module.exports.inject = function Hazards(bot) {
     function Block(weight, avoid, offset) {
         weight = weight || 1
-        avoid = avoid || new Array()
+        avoid = avoid || {}
         offset = offset || new Vec3(0, -1, 0)
         
         this.weight = Setter(this, _ => weight = _)
-        this.avoid = Setter(this, (..._) => avoid = _)
+        this.avoid = Setter(this, _ => avoid = _)
         this.offset = Setter(this, (x, y, z) => offset.set(x, y, z))
 
         this.heuristic = (position) => {
-            for (let name of avoid) {
-                const block = bot.blockAt(position.plus(offset))
-                if (block === null) {
-                    continue
-                } else
+            const block = bot.blockAt(position.plus(offset))
+            if (block === null) {
+                return 0
+            } else 
+            
+            if (avoid[block.name]) {
+                return weight
+            } else
 
-                if (block.name === name) {
-                    return weight
-                }
-            } return 0
+            return 0
         }
     }
 
@@ -38,7 +38,7 @@ module.exports.inject = function Hazards(bot) {
 
         this.weight = Setter(this, _ => weight = _)
         this.radius = Setter(this, _ => radius = _)
-        this.entities = Setter(this, (..._) => entities = _)
+        this.entities = Setter(this, _ => entities = _)
 
         this.heuristic = (position) => {
             for (let entity of entities) {
@@ -53,14 +53,14 @@ module.exports.inject = function Hazards(bot) {
         }
     }
 
-    function Location(weight, radius, coordinates) {
+    function Position(weight, radius, coordinates) {
         weight = weight || 1
         radius = radius || 5
         coordinates = coordinates || new Array()
 
         this.weight = Setter(this, _ => weight = _)
         this.radius = Setter(this, _ => radius = _)
-        this.coordinates = Setter(this, (..._) => coordinates = _)
+        this.coordinates = Setter(this, _ => coordinates = _)
 
         this.heuristic = (position) => {
             for (let coordinate of coordinates) {
@@ -74,6 +74,6 @@ module.exports.inject = function Hazards(bot) {
     return {
         Entity,
         Block,
-        Location
+        Position
     }
 }
