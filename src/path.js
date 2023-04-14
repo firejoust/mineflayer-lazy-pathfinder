@@ -159,24 +159,40 @@ module.exports.inject = function inject(bot) {
             }
 
             while (keepalive() && !goal.complete(currentPos)) {
+                const bounds = yBounds(currentPos)
+
+                // current position is not a valid node; cannot continue
+                if (bounds === null) {
+                    break
+                }
+
                 for (let offset of Adjacent) {
                     const nextPos = currentPos.offset(offset[0], 0, offset[1])
+
                     // check that the existing positon hasn't been added
                     if (Nodes.has(getHash(nextPos))) {
                         continue
-                    } else
+                    }
+
+                    const nextBounds = yBoundsNext(nextPos, bounds[0])
+
+                    if (nextBounds === null) {
+                        continue
+                    }
+
                     // verify we can get from A to B
-                    if (canMoveFrom(currentPos, nextPos)) {
+                    if (canMoveTo(nextPos, bounds, nextBounds)) {
                         const hash = getHash(nextPos)
-                        // check that the updated position hasn't been added
+
+                        // check the updated position with the new Y offset hasn't already been added
                         if (Nodes.has(hash)) {
                             continue
-                        } else {
-                            const heuristic = goal.heuristic(nextPos) * hazardWeight(hazards, nextPos)
-                            const node = new Node(currentNode, heuristic, nextPos)
-                            Nodes.add(hash)
-                            insertNode(node, Best)
                         }
+
+                        const heuristic = goal.heuristic(nextPos) * hazardWeight(hazards, nextPos)
+                        const node = new Node(currentNode, heuristic, nextPos)
+                        Nodes.add(hash)
+                        insertNode(node, Best)
                     }
                 }
 
@@ -245,227 +261,135 @@ module.exports.inject = function inject(bot) {
             }
         }
 
-        function canMoveFrom(currentPos, nextPos) {
-            let floor1, floor2, ceiling1, ceiling2
-            floor1 = floor2 = 0
-            ceiling1 = ceiling2 = 0
-            
-            /*
-                Get the amount of space in the next node
-            */
-            {
-                const yf_2 = bot.blockAt(nextPos.offset(0, -1, 0))
-                const y0_2 = bot.blockAt(nextPos)
-                const y1_2 = bot.blockAt(nextPos.offset(0, 1, 0))
-                const y2_2 = bot.blockAt(nextPos.offset(0, 2, 0))
+        function yBounds(position) {
+            let floor = -1
+            let ceiling = 4
+            let available = 0
+            let gapFound = false
 
-                const yf_2_empty = emptyBlock(yf_2) 
-                const y0_2_empty = emptyBlock(y0_2)
-                const y1_2_empty = emptyBlock(y1_2)
-                const y2_2_empty = emptyBlock(y2_2)
+            for (let i = 3; i >= -1; i--) {
+                const pos = position.offset(0, i, 0)
+                const block = bot.blockAt(pos)
 
-                /*
-                    NOTE: this logic will be changed in the future
-                    (allow descending nods)
-                */
-                if (yf_2_empty && y0_2_empty) {
-                    console.log("false\n")
-                    return false
-                }
-
-                floor2 = y0_2_empty
-                ? 2 - heightMap[yf_2.stateId].max
-                : yf_2_empty
-                ? 1 - heightMap[y0_2.stateId].max
-                : 2 - Math.max(1 + heightMap[y0_2.stateId].max, heightMap[yf_2.stateId].max)
-
-                ceiling2 = y1_2_empty && y2_2_empty
-                ? 2
-                : y1_2_empty
-                ? 1 + heightMap[y2_2.stateId].min
-                : heightMap[y1_2.stateId].min
-
-                /*
-                // see if we can climb the ceiling block
-                if (ceiling2 < 1 && y2_2_empty) {
-                    const y3_2 = bot.blockAt(nextPos.offset(0, 3, 0))
-                    const y3_2_empty = emptyBlock(y3_2)
-
-                    if (y3_2_empty) {
-                        const feet = 1 - heightMap[y1_2.stateId].max
-                        ceiling2 = feet + 2
-                    } else {
-                        const head = heightMap[y3_2.stateId].min
-                        const feet = 1 - heightMap[y1_2.stateId].max
-                        ceiling2 = feet + 1 + head
-                    }
-                }
-                */
-            }
-
-            console.log(`nextPos: ${floor2} + ${ceiling2} < ${bot.physics.playerHeight} = ${floor2 + ceiling2 < bot.physics.playerHeight}`)
-
-            // not enough space to get to next node
-            if (floor2 + ceiling2 < bot.physics.playerHeight) {
-                console.log("false\n")
-                return false
-            }
-
-            /*
-                Get the amount of space in the current node
-            */
-            {
-                const yf_1 = bot.blockAt(currentPos.offset(0, -1, 0))
-                const y0_1 = bot.blockAt(currentPos)
-                const y1_1 = bot.blockAt(currentPos.offset(0, 1, 0))
-                const y2_1 = bot.blockAt(currentPos.offset(0, 2, 0))
-
-                const yf_1_empty = emptyBlock(yf_1)
-                const y0_1_empty = emptyBlock(y0_1)
-                const y1_1_empty = emptyBlock(y1_1)
-
-                floor1 = yf_1_empty && y0_1_empty
-                ? 2
-                : y0_1_empty // current node is empty
-                ? 2 - heightMap[yf_1.stateId].max
-                : yf_1_empty // current node isn't empty
-                ? 1 - heightMap[y0_1.stateId].max
-                : 2 - Math.max(1 + heightMap[y0_1.stateId].max, heightMap[yf_1.stateId].max) // both nodes are solid, pick the tallest block
-
-                ceiling1 = y1_1_empty && emptyBlock(y2_1)
-                ? 2
-                : y1_1_empty
-                ? 1 + heightMap[y2_1.stateId].min
-                : heightMap[y1_1.stateId].min // either y2 is empty, or none are empty
-            }
-
-            console.log(`currentPos: ${floor1} + ${ceiling1} < ${bot.physics.playerHeight} = ${floor1 + ceiling1 < bot.physics.playerHeight}`)
-
-
-            const floor = Math.min(floor1, floor2)
-            const ceiling = Math.min(ceiling1, ceiling2)
-
-            console.log(`newPos: ${floor} + ${ceiling} < ${bot.physics.playerHeight} = ${floor + ceiling < bot.physics.playerHeight}`)
-
-
-            // cannot leave the current node
-            if (floor + ceiling < bot.physics.playerHeight) {
-                console.log("false\n")
-                return false
-            }
-
-            console.log(`floor2 - floor1: ${Math.abs(floor2 - floor1)}`)
-
-            // change coditions for when ceiling2 was changed (block climb)
-
-
-            nextPos.y -= floor2 - floor1
-
-            if (unsafeBlock(bot.blockAt(nextPos))) {
-                console.log("false\n")
-                return false
-            }
-
-            console.log("true\n")
-            return true
-        }
-    
-        /*
-        function canMoveFrom(currentPos, nextPos) {
-            const y1 = bot.blockAt(nextPos.offset(0, 1, 0))
-
-            // block obstruction at head height, check if we can go under it
-            if (solidBlock(y1)) {
-                if (unsafeBlock(y1)) {
-                    return false
-                }
-
-                const yf = bot.blockAt(currentPos.offset(0, -1, 0))
-
-                if (unsafeBlock(yf) || emptyBlock(yf)) {
-                    return false
-                }
-
-                const y0 = bot.blockAt(nextPos)
-                const feet = Math.abs(heightMap[yf.stateId].max - 1)
-                const head = emptyBlock(y0)
-                ? 1 + heightMap[y1.stateId].min
-                : heightMap[y0.stateId].min
-
-                console.log(`${feet} + ${head} >= ${bot.physics.playerHeight}`)
-
-                if (feet + head >= bot.physics.playerHeight) {
-                    return true
-                }
-
-            } else
-        
-            // no block obstruction at head height, check the next block down
-            if (emptyBlock(y1)) {
-                const y0 = bot.blockAt(nextPos)
-        
-                if (unsafeBlock(y1)) {
-                    return false
-                }
-        
-                if (unsafeBlock(y0)) {
-                    return false
-                }
-        
-                // keep going down until we hit a solid block
-                if (emptyBlock(y0)) {
-                    const lastPos = nextPos.clone()
-                    const descendPos = nextPos.offset(0, -1, 0)
-        
-                    for (let i = 1; i <= depth; i++) {
-                        const yi = bot.blockAt(descendPos)
-        
-                        if (unsafeBlock(yi)) {
-                            return false
-                        }
-        
-                        if (solidBlock(yi)) {
-                            nextPos.update(lastPos)
-                            return true
-                        }
-        
-                        lastPos.y--
-                        descendPos.y--
-                    }
+                // block is listed as unsafe; terminate
+                if (unsafeBlock(block)) {
+                    return null
                 } else
-        
-                // check if we can climb up the block
-                if (solidBlock(y0)) {
-                    const y2_0 = bot.blockAt(currentPos.offset(0, 2, 0))
-        
-                    if (unsafeBlock(y2_0)) {
-                        return false
-                    }
 
-                    const y2_1 = bot.blockAt(nextPos.offset(0, 2, 0))
+                // get the height of the blocks below the higher block (fence boost, etc)
+                if (gapFound) {
+                    if (solidBlock(block)) {
+                        floor = Math.max(floor, heightMap[block.stateId].max + i)
+                    } break
+                } else
+                
+                // no gap has been found, keep allocating empty space
+                {
+                    if (emptyBlock(block)) {
+                        available += 1
+                    } else
 
-                    if (unsafeBlock(y2_1)) {
-                        return false
-                    }
+                    if (solidBlock(block)) {
+                        const space = 1 - heightMap[block.stateId].max
+                        const maximum = available + space
+                    
+                        // solid block found; end it here if we have enough space
+                        if (maximum >= bot.physics.playerHeight) {
+                            floor = heightMap[block.stateId].max + i
+                            available = maximum
+                            gapFound = true
+                        } else
 
-                    const yf = bot.blockAt(currentPos.offset(0, -1, 0))
-
-                    if (unsafeBlock(yf) || emptyBlock(yf)) {
-                        return false
-                    }
-
-                    if (emptyBlock(y2_0) && emptyBlock(y2_1)) {
-                        if (heightMap[y0.stateId].max - heightMap[yf.stateId].max <= 0.25) {
-                            nextPos.y += 1
-                            return true
+                        // not enough available space; reset to find the next gap
+                        {
+                            available = heightMap[block.stateId].min
+                            ceiling = available + i
                         }
                     }
                 }
             }
-        
-            // cannot get to the next node
+
+            return gapFound
+            ? [floor, ceiling]
+            : null
+        }
+
+        function yBoundsNext(position, lastFloor) {
+            let floor = -depth
+            let ceiling = 4
+            let available = 0
+            let gapFound = false
+
+            for (let i = 3; i >= -depth; i--) {
+                const pos = position.offset(0, i, 0)
+                const block = bot.blockAt(pos)
+
+                // block is listed as unsafe; terminate
+                if (unsafeBlock(block)) {
+                    return null
+                } else
+
+                // get the height of the blocks below the higher block (fence boost, etc)
+                if (gapFound) {
+                    if (solidBlock(block)) {
+                        floor = Math.max(floor, heightMap[block.stateId].max + i)
+                    } break
+                } else
+                
+                // no gap has been found, keep allocating empty space
+                {
+                    if (emptyBlock(block)) {
+                        available += 1
+                    } else
+
+                    if (solidBlock(block)) {
+                        const space = 1 - heightMap[block.stateId].max
+                        const maximum = available + space
+                        
+                        // solid block found; end it here if we have enough space
+                        if (maximum >= bot.physics.playerHeight && i < 2) {
+                            floor = heightMap[block.stateId].max + i
+
+                            if (floor - lastFloor > 1.25) {
+                                available = heightMap[block.stateId].min
+                                ceiling = available + i
+                                floor = -depth
+                                continue
+                            }
+
+                            available = maximum
+                            gapFound = true
+                        } else
+
+                        // not enough available space; reset to find the next gap
+                        {
+                            available = heightMap[block.stateId].min
+                            ceiling = available + i
+                        }
+                    }
+                }
+            }
+
+            return gapFound
+            ? [floor, ceiling]
+            : null
+        }
+
+        function canMoveTo(position, bounds, boundsNext) {
+            const floor = boundsNext[0] > bounds[0]
+            ? boundsNext[0]
+            : bounds[0]
+
+            const ceiling = boundsNext[1] < bounds[1]
+            ? boundsNext[1]
+            : bounds[1]
+
+            if (ceiling - floor >= bot.physics.playerHeight) {
+                position.y += boundsNext[0] - bounds[0]
+                return true
+            }
+
             return false
         }
-        */
     }
 }
