@@ -8,7 +8,7 @@ const Setter = (instance, callback) => {
 }
 
 module.exports.inject = function Hazards(bot) {
-    function Block(weight, avoid, offset) {
+    function Block(weight, offset, avoid) {
         weight = weight || 1
         avoid = avoid || {}
         offset = offset || new Vec3(0, -1, 0)
