@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "Basic A* pathfinder for mineflayer with goals",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,5 +19,9 @@
   "homepage": "https://github.com/firejoust/mineflayer-pathfinder-lite#readme",
   "dependencies": {
     "vec3": "^0.1.8"
+  },
+  "devDependencies": {
+    "mineflayer": "^4.8.1",
+    "prismarine-entity": "^2.2.0"
   }
 }
