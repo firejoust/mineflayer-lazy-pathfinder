@@ -3,6 +3,7 @@ const Goals = require("./src/goals.js")
 const Path = require("./src/path.js")
 
 module.exports.goals = Goals()
+module.exports.hazards = Hazards()
 
 module.exports.plugin = function inject(bot) {
     bot.pathfinder = new Plugin(bot)
@@ -10,5 +11,4 @@ module.exports.plugin = function inject(bot) {
 
 function Plugin(bot) {
     this.Path = Path.inject(bot)
-    this.hazards = Hazards.inject(bot)
 }

@@ -7,15 +7,15 @@ const Setter = (instance, callback) => {
     }
 }
 
-module.exports.inject = function Hazards(bot) {
-    function Block(weight, offset, avoid) {
+module.exports = function Hazards() {
+    function Block(bot, weight, offset, avoid) {
         weight = weight || 1
-        avoid = avoid || {}
         offset = offset || new Vec3(0, -1, 0)
+        avoid = avoid || {}
         
         this.weight = Setter(this, _ => weight = _)
-        this.avoid = Setter(this, _ => avoid = _)
         this.offset = Setter(this, (x, y, z) => offset.set(x, y, z))
+        this.avoid = Setter(this, _ => avoid = _)
 
         this.heuristic = (position) => {
             const block = bot.blockAt(position.plus(offset))

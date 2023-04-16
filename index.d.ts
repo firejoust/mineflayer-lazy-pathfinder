@@ -11,40 +11,8 @@ interface Goal {
     complete: (position: Vec3) => boolean;
 }
 
-declare namespace Hazards {
-    interface Hazard {
-        heuristic: (position: Vec3) => number;
-    }
-
-    class Block implements Hazard {
-        constructor(weight?: number, offset?: Vec3, avoid?: AvoidBlocks);
-        heuristic: (position: Vec3) => number;
-        weight: (weight: number) => this;
-        offset: (offset: Vec3) => this;
-        avoid: (avoid: AvoidBlocks) => this;
-    }
-
-    class Entity implements Hazard {
-        constructor(weight?: number, radius?: number, entities?: Prismarine.Entity[]);
-        heuristic: (position: Vec3) => number;
-        weight: (weight: number) => this;
-        radius: (radius: number) => this;
-        entities: (entities: Prismarine.Entity[]) => this;
-    }
-
-    class Position implements Hazard {
-        constructor(weight?: number, radius?: number, coordinates?: Vec3[]);
-        heuristic: (position: Vec3) => number;
-        weight: (weight: number) => this;
-        radius: (radius: number) => this;
-        coordinates: (coordinates: Vec3[]) => this;
-    }
-}
-
-declare interface Hazards {
-    Block: typeof Hazards.Block;
-    Entity: typeof Hazards.Entity;
-    Position: typeof Hazards.Position;
+class Hazard {
+    heuristic: (position: Vec3) => number;
 }
 
 declare class Path {
@@ -73,6 +41,29 @@ export interface goals {
     Radius3D: (x: number, z: number, radius?: number) => Goal;
     Radius2D: (x: number, z: number, radius?: number) => Goal;
     Direction: (bot: Bot, distance?: number) => Goal;
+}
+
+export namespace hazards {
+    class Block extends Hazard {
+        constructor(bot: Bot, weight?: number, offset?: Vec3, avoid?: AvoidBlocks);
+        weight: (weight: number) => this;
+        offset: (offset: Vec3) => this;
+        avoid: (avoid: AvoidBlocks) => this;
+    }
+    
+    class Entity extends Hazard {
+        constructor(weight?: number, radius?: number, entities?: Prismarine.Entity[]);
+        weight: (weight: number) => this;
+        radius: (radius: number) => this;
+        entities: (entities: Prismarine.Entity[]) => this;
+    }
+    
+    class Position extends Hazard {
+        constructor(weight?: number, radius?: number, coordinates?: Vec3[]);
+        weight: (weight: number) => this;
+        radius: (radius: number) => this;
+        coordinates: (coordinates: Vec3[]) => this;
+    }
 }
 
 export function plugin(bot: Bot): void;
