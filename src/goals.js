@@ -30,24 +30,21 @@ module.exports = function Goals() {
         }
     }
 
-    function Direction(bot, distance) {
-        const currentPos = bot.entity.position.floored()
-        distance = distance || 500
+    function Avoid(position, distance) {
+        distance = distance || 200
 
-        this.heuristic = (position) => {
-            const x0 = -Math.sin(bot.entity.yaw) * distance - (position.x - currentPos.x)
-            const z0 = -Math.cos(bot.entity.yaw) * distance - (position.z - currentPos.z)
-            return Math.sqrt(x0 ** 2 + z0 ** 2)
+        this.heuristic = (_position) => {
+            return -currentPos.distanceTo(_position)
         }
 
-        this.complete = (_) => {
-            return false
+        this.complete = (_position) => {
+            position.distanceTo(_position) > distance
         }
     }
 
     return {
         Radius3D,
         Radius2D,
-        Direction
+        Avoid
     }
 }

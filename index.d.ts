@@ -40,7 +40,7 @@ declare module 'mineflayer' {
 export interface goals {
     Radius3D: (x: number, z: number, radius?: number) => Goal;
     Radius2D: (x: number, z: number, radius?: number) => Goal;
-    Direction: (bot: Bot, distance?: number) => Goal;
+    Avoid: (position: Vec3, distance?: number) => Goal;
 }
 
 export namespace hazards {

@@ -10,7 +10,7 @@ class PrismarineEntity;  // https://github.com/PrismarineJS/prismarine-entity
 ```
 ##### Goals
 ```js
-const { Radius3D, Radius2D, Direction } = require("mineflayer-pathfinder-lite").goals
+const { Radius3D, Radius2D, Avoid } = require("mineflayer-pathfinder-lite").goals
 
 // path ends within a radius of a 3D coordinate (Vec3)
 const goal1 = new Radius3D(destination, radius)
@@ -18,23 +18,26 @@ const goal1 = new Radius3D(destination, radius)
 // path ends within a radius of a 2D coordinate
 const goal2 = new Radius2D(x, z, radius)
 
-// path ends at node closest to distance in the current facing direction
-const goal3 = new Direction(bot, distance)
+// path ends when "distance" blocks away from the position
+const goal3 = new Avoid(position, distance)
 ```
 ##### Hazards
 ```js
 const { Block, Entity, Position } = require("mineflayer-pathfinder-lite").hazards
 
+// applies a cost multiplier of 1 + weight based on avoid blocks (key/value -> block name, boolean)
 const hazard1 = new Block(bot, weight?, offset?, avoid?)
   .weight(number) // multiplier for a node's heuristic (1 + weight)
   .offset(Vec3)   // where to check relative to the node (default: block under node)
   .avoid(object)  // string -> boolean key/value object containing names of blocks to avoid
   
+// applies a cost multiplier of 1 + weight based on entities within a radius
 const hazard2 = new Entity(weight?, radius?, entities?)
   .weight(number) // multiplier for a node's heuristic (1 + weight)
   .radius(number) // distance from an entity which weight will be applied
   .entities(PrismarineEntity[]) // entities to avoid
   
+// applies a cost multiplier of 1 + weight based on coordinates within a radius
 const hazard3 = new Position(weight?, radius?, coordinates?)
   .weight(number) // multiplier for a node's heuristic (1 + weight)
   .radius(number) // distance from a coordinate which weight will be applied
