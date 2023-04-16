@@ -23,17 +23,19 @@ const goal3 = new Direction(bot, distance)
 ```
 ##### Hazards
 ```js
-const hazard1 = new bot.pathfinder.hazards.Block(weight?, offset?, avoid?)
+const { Block, Entity, Position } = require("mineflayer-pathfinder-lite").hazards
+
+const hazard1 = new Block(bot, weight?, offset?, avoid?)
   .weight(number) // multiplier for a node's heuristic (1 + weight)
   .offset(Vec3)   // where to check relative to the node (default: block under node)
   .avoid(object)  // string -> boolean key/value object containing names of blocks to avoid
   
-const hazard2 = new bot.pathfinder.hazards.Entity(weight?, radius?, entities?)
+const hazard2 = new Entity(weight?, radius?, entities?)
   .weight(number) // multiplier for a node's heuristic (1 + weight)
   .radius(number) // distance from an entity which weight will be applied
   .entities(PrismarineEntity[]) // entities to avoid
   
-const hazard3 = new bot.pathfinder.hazards.Position(weight?, radius?, coordinates?)
+const hazard3 = new Position(weight?, radius?, coordinates?)
   .weight(number) // multiplier for a node's heuristic (1 + weight)
   .radius(number) // distance from a coordinate which weight will be applied
   .coordinates(Vec3[]) // coordinates to avoid
