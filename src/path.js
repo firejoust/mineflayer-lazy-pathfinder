@@ -191,6 +191,8 @@ module.exports.inject = function inject(bot) {
 
                         const heuristic = goal.heuristic(nextPos) * hazardWeight(hazards, nextPos)
                         const node = new Node(currentNode, heuristic, nextPos)
+                        node.total += Math.abs(bounds[0] - nextBounds[0]) // add cost of climb/descent
+
                         Nodes.add(hash)
                         insertNode(node, Best)
                     }
@@ -271,11 +273,6 @@ module.exports.inject = function inject(bot) {
                 const pos = position.offset(0, i, 0)
                 const block = bot.blockAt(pos)
 
-                // block is listed as unsafe; terminate
-                if (unsafeBlock(block)) {
-                    return null
-                } else
-
                 // get the height of the blocks below the higher block (fence boost, etc)
                 if (gapFound) {
                     if (solidBlock(block)) {
@@ -324,11 +321,6 @@ module.exports.inject = function inject(bot) {
                 const pos = position.offset(0, i, 0)
                 const block = bot.blockAt(pos)
 
-                // block is listed as unsafe; terminate
-                if (unsafeBlock(block)) {
-                    return null
-                } else
-
                 // get the height of the blocks below the higher block (fence boost, etc)
                 if (gapFound) {
                     if (solidBlock(block)) {
@@ -347,9 +339,10 @@ module.exports.inject = function inject(bot) {
                         const maximum = available + space
                         
                         // solid block found; end it here if we have enough space
-                        if (maximum >= bot.physics.playerHeight && i < 2) {
+                        if (maximum >= bot.physics.playerHeight) {
                             floor = heightMap[block.stateId].max + i
 
+                            // gap is too high to climb
                             if (floor - lastFloor > 1.25) {
                                 available = heightMap[block.stateId].min
                                 ceiling = available + i
@@ -367,6 +360,15 @@ module.exports.inject = function inject(bot) {
                             ceiling = available + i
                         }
                     }
+                }
+            }
+
+            // verify the blocks we've chosen are not unsafe
+            for (let i = Math.floor(floor); i < ceiling; i++) {
+                const pos = position.offset(0, i, 0)
+
+                if (unsafeBlock(bot.blockAt(pos))) {
+                    return null
                 }
             }
 
