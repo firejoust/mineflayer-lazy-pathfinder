@@ -1,5 +1,5 @@
 #### About
-This is an A* pathfinding algorithm for navigating Minecraft's terrain. It works by getting the floor/ceiling height in the current node, then comparing it to the floor/ceiling height in the next node to see if the player can fit in a gap. Right now it can only move in cardinal directions (North, East, South, West)
+This is an A* pathfinding algorithm for navigating Minecraft's terrain. It works by getting the floor/ceiling height in the current node, then comparing it to the floor/ceiling height in the next node to see if the player can fit through a gap. Right now it can only move in cardinal directions (North, East, South, West)
 
 #### Installation
 ```sh
