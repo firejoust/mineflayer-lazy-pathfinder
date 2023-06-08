@@ -1,11 +1,14 @@
 {
   "name": "mineflayer-pathfinder-lite",
-  "version": "1.0.4",
   "description": "Basic A* pathfinder for mineflayer with goals",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "version": "1.1.0",
+  "main": "src/index.js",
+  "dependencies": {
+    "rescript": "^10.1.4"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rescript build",
+    "clean": "rescript clean"
   },
   "repository": {
     "type": "git",
@@ -16,12 +19,5 @@
   "bugs": {
     "url": "https://github.com/firejoust/mineflayer-pathfinder-lite/issues"
   },
-  "homepage": "https://github.com/firejoust/mineflayer-pathfinder-lite#readme",
-  "dependencies": {
-    "vec3": "^0.1.8"
-  },
-  "devDependencies": {
-    "mineflayer": "^4.8.1",
-    "prismarine-entity": "^2.2.0"
-  }
+  "homepage": "https://github.com/firejoust/mineflayer-pathfinder-lite#readme"
 }
