@@ -5,6 +5,13 @@ const Adjacent = [
     [0, -1]
 ]
 
+const Diagonal = [
+    [1, 1],   // [1, 0] -> [0, 1]
+    [-1, 1],  // [0, 1] -> [-1, 0]
+    [-1, -1], // [-1, 0] -> [0, -1]
+    [1, -1]   // [0, -1] -> [1, 0]
+]
+
 const Defaults = {
     avoid: { 'lava': true, 'water': true },
     depth: 4,
@@ -166,7 +173,12 @@ module.exports.inject = function inject(bot) {
                     break
                 }
 
-                for (let offset of Adjacent) {
+                const adjacent = new Array(4)
+
+                for (let i = 0; i < 4; i++) {
+                    adjacent[i] = new Array(2)
+                    
+                    const offset = Adjacent[i]
                     const nextPos = currentPos.offset(offset[0], 0, offset[1])
 
                     // check that the existing positon hasn't been added
@@ -179,6 +191,9 @@ module.exports.inject = function inject(bot) {
                     if (nextBounds === null) {
                         continue
                     }
+
+                    // set diagonal left adjacent node
+                    adjacent[i][0] = nextBounds
 
                     // verify we can get from A to B
                     if (canMoveTo(nextPos, bounds, nextBounds)) {
@@ -195,6 +210,53 @@ module.exports.inject = function inject(bot) {
 
                         Nodes.add(hash)
                         insertNode(node, Best)
+                    }
+                }
+
+                // set diagonal right adjacent node
+                adjacent[0][1] = adjacent[1][0]
+                adjacent[1][1] = adjacent[2][0]
+                adjacent[2][1] = adjacent[3][0]
+                adjacent[3][1] = adjacent[0][0]
+
+                /*
+                    todo: implement diagonal nodes
+                    
+                    pretty much keep track of the adjacent node(s) height/floor (that we used)
+                    and do the same comparison between 4 nodes (instead of 2)
+                    being the two adjacent nodes, the current node and the diagonal node
+
+                    the only check we need to do is max floor of 4, and min height of 4
+                */
+
+                for (let i = 0; i < 4; i++) {
+                    const [left, right] = adjacent[i]
+                    console.log(left, right)
+                    if (left && right) {
+                        const offset = Diagonal[i]
+                        const nextPos = currentPos.offset(offset[0], 0, offset[1])
+                        const highestFloor = Math.max(bounds[0], left[0], right[0])
+                        const diagonal = yBoundsNext(nextPos, highestFloor)
+
+                        if (diagonal === null) {
+                            continue
+                        }
+
+                        if (canMoveDiagonally(nextPos, bounds, left, right, diagonal)) {
+                            const hash = getHash(nextPos)
+
+                            if (Nodes.has(hash)) {
+                                continue
+                            }
+    
+                            const heuristic = goal.heuristic(nextPos) * hazardWeight(hazards, nextPos)
+                            const node = new Node(currentNode, heuristic, nextPos)
+                            node.total += Math.abs(highestFloor - nextBounds[0])
+                            node.total += 0.3 // add cost of traversing diagonal node
+
+                            Nodes.add(hash)
+                            insertNode(node, Best)
+                        }
                     }
                 }
 
@@ -388,6 +450,18 @@ module.exports.inject = function inject(bot) {
 
             if (ceiling - floor >= bot.physics.playerHeight) {
                 position.y += boundsNext[0] - bounds[0]
+                return true
+            }
+
+            return false
+        }
+
+        function canMoveDiagonally(position, current, left, right, diagonal) {
+            const floor = Math.max(current[0], left[0], right[0], diagonal[0])
+            const ceiling = Math.min(current[0], left[0], right[0], diagonal[0])
+
+            if (ceiling - floor >= bot.physics.playerHeight) {
+                position.y += diagonal[0] - current[0]
                 return true
             }
 
