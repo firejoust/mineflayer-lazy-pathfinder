@@ -6,12 +6,14 @@ type AvoidBlocks = {
     [name: string]: boolean;
 };
 
+type Hazards = hazards.Block | hazards.Entity | hazards.Position
+
 interface Goal {
     heuristic: (position: Vec3) => number;
     complete: (position: Vec3) => boolean;
 }
 
-class Hazard {
+declare class Hazard {
     heuristic: (position: Vec3) => number;
 }
 
@@ -25,8 +27,8 @@ declare class Path {
 }
 
 interface Pathfinder {
-    hazards: Hazards;
     Path: typeof Path;
+    follow: (path: Vec3[]) => Promise<void>
 }
 
 declare function inject(bot: Bot): void;

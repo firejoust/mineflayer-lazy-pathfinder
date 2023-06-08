@@ -1,3 +1,4 @@
+const Movement = require("./src/movement.js")
 const Hazards = require("./src/hazards.js")
 const Goals = require("./src/goals.js")
 const Path = require("./src/path.js")
@@ -11,4 +12,5 @@ module.exports.plugin = function inject(bot) {
 
 function Plugin(bot) {
     this.Path = Path.inject(bot)
+    this.follow = Movement.inject(bot)
 }
