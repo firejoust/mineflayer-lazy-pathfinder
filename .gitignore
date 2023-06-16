@@ -28,3 +28,4 @@ lib/bs
 *.js
 lib
 old
+package-lock.json
