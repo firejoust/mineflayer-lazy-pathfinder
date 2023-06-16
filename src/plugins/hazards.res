@@ -1,0 +1,2 @@
+let blocks = () => ()
+let coordinates = () => ()
