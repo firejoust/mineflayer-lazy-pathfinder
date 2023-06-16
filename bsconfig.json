@@ -9,5 +9,15 @@
     "module": "commonjs",
     "in-source": true
   },
-  "suffix": ".js"
+  "suffix": ".js",
+  "gentypeconfig": {
+    "language": "typescript",
+    "shims": {},
+    "generatedFileExtension": ".d.ts",
+    "module": "commonjs",
+    "debug": {
+      "all": false,
+      "basic": false
+    }
+  }
 }
