@@ -9,8 +9,12 @@
 - The maximum climb height
 
 #### Standing blocks
-- Ladder/Vines: Must be touching player's feet
-- Liquid: Must be touching player's bounding box
+- Ladder/Vines:
+  - Accessibility: Jump height + 0 offset
+  - Climb Height: Jump height
+- Liquid:
+  - Accessibility: Jump height + 1.8 offset
+  - Climb Height: 1
 
 #### Loop:
 - All accessible "Standing blocks" in current node are checked/added to queue
